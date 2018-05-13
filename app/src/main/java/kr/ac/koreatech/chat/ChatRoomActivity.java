@@ -1,11 +1,15 @@
 package kr.ac.koreatech.chat;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -16,6 +20,7 @@ import android.widget.TextView;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -48,11 +53,6 @@ public class ChatRoomActivity  extends BaseActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
-
-        mMessageRecyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
-
-        mLinearLayoutManager = new LinearLayoutManager(this);
-        mLinearLayoutManager.setStackFromEnd(true);     //리스트 마지막 부터 스택을 쌓기
 
         mMessageEditText = (EditText) findViewById(R.id.messageEditText);
         mMessageEditText.addTextChangedListener(new TextWatcher() {
@@ -119,6 +119,10 @@ public class ChatRoomActivity  extends BaseActivity
             }
         });
 
+        mLinearLayoutManager = new LinearLayoutManager(this);
+        mLinearLayoutManager.setStackFromEnd(true);     //리스트 마지막 부터 스택을 쌓기
+
+        mMessageRecyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
         mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
         mMessageRecyclerView.setAdapter(mFirebaseAdapter);
     }
@@ -133,5 +137,32 @@ public class ChatRoomActivity  extends BaseActivity
     public void onResume() {
         super.onResume();
         mFirebaseAdapter.startListening();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sign_out_menu:
+                User.currentUser = null;
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                auth.signOut();
+                startActivity(new Intent(this, SignInActivity.class));
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        this.finishAffinity();
     }
 }

@@ -2,6 +2,7 @@ package kr.ac.koreatech.chat;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -31,8 +32,6 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     private EditText mPasswordField;
     private TextView mStatusTextView;
 
-    private User mCurrentUser;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +55,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
 
         showProgressDialog();
 
+        // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         setCurrentUser(currentUser);
     }
@@ -124,13 +124,14 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
             myRef.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    mCurrentUser = dataSnapshot.getValue(User.class);
-                    if (mCurrentUser == null) {
-                        mCurrentUser = new User(uid);
-                        mCurrentUser.setEmail(email);
+
+                    User.currentUser = dataSnapshot.getValue(User.class);
+                    if (User.currentUser == null) {
+                        User.currentUser = new User(uid);
+                        User.currentUser.setEmail(email);
                     }
 
-                    mCurrentUser.uid = uid;
+                    User.currentUser.uid = uid;
                     updateUI();
                 }
 
@@ -143,8 +144,8 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void updateUI() {
-        if (mCurrentUser != null) {
-            if (mCurrentUser.name == null) {
+        if (User.currentUser != null) {
+            if (User.currentUser.name == null) {
                 alertDialog();
             } else {
                 goToMainActivity();
@@ -170,7 +171,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // Text 값 받기
-                mCurrentUser.setName(et.getText().toString());
+                User.currentUser.setName(et.getText().toString());
 
                 //닫기
                 dialog.dismiss();
@@ -183,6 +184,6 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void goToMainActivity() {
-
+        startActivity(new Intent(this, ChatRoomActivity.class));
     }
 }

@@ -1,7 +1,5 @@
 package kr.ac.koreatech.chat.model;
 
-import android.util.Log;
-
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
@@ -10,6 +8,7 @@ import java.io.Serializable;
 
 public class User implements Serializable {
     public static String ref = "users";
+    public static User currentUser;
 
     @Exclude
     public String uid;

@@ -1,4 +1,4 @@
-package kr.ac.koreatech.chat;
+package kr.ac.koreatech.chat.view.sign_in;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -21,8 +21,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.onesignal.OneSignal;
 
+import kr.ac.koreatech.chat.R;
 import kr.ac.koreatech.chat.model.User;
+import kr.ac.koreatech.chat.view.BaseActivity;
+import kr.ac.koreatech.chat.view.chat_room.ChatRoomActivity;
 
 public class SignInActivity extends BaseActivity implements View.OnClickListener
 {
@@ -36,6 +40,12 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
+
+        // OneSignal Initialization
+        OneSignal.startInit(this)
+                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+                .unsubscribeWhenNotificationsAreDisabled(true)
+                .init();
 
         // Views
         mEmailField = findViewById(R.id.field_email);
@@ -58,6 +68,11 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         setCurrentUser(currentUser);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -120,30 +135,36 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
             final String uid = firebaseUser.getUid();
             final String email = firebaseUser.getEmail();
 
-            final DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(User.ref);
-            myRef.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            ValueEventListener listener = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    // Get User object and use the values to update the UI
+                    User user = dataSnapshot.getValue(User.class);
 
-                    User.currentUser = dataSnapshot.getValue(User.class);
-                    if (User.currentUser == null) {
-                        User.currentUser = new User(uid);
-                        User.currentUser.setEmail(email);
+                    if (user == null) {
+                        user = new User(uid, null, email, true);
                     }
 
-                    User.currentUser.uid = uid;
+                    user.uid = uid;
+                    user.isOnline = true;
+                    User.currentUser = user;
                     updateUI();
                 }
-
                 @Override
                 public void onCancelled(DatabaseError databaseError) { }
-            });
+            };
+
+            final DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(User.ref);
+            myRef.child(uid).addListenerForSingleValueEvent(listener);
+
         } else {
             updateUI();
         }
     }
 
     private void updateUI() {
+        hideProgressDialog();
+
         if (User.currentUser != null) {
             if (User.currentUser.name == null) {
                 alertDialog();
@@ -152,7 +173,6 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
             }
         } else {
             mStatusTextView.setText("");
-            hideProgressDialog();
         }
     }
 
@@ -184,6 +204,17 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void goToMainActivity() {
+        User.currentUser.setIsOnline(true);
+
+        OneSignal.idsAvailable(new OneSignal.IdsAvailableHandler() {
+            @Override
+            public void idsAvailable(String userId, String registrationId) {
+                if (registrationId != null) {
+                    User.currentUser.setPlayerId(userId);
+                }
+            }
+        });
+
         startActivity(new Intent(this, ChatRoomActivity.class));
     }
 }

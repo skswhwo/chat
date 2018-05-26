@@ -1,7 +1,15 @@
-package kr.ac.koreatech.chat;
+package kr.ac.koreatech.chat.view;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.onesignal.OneSignal;
+
+import kr.ac.koreatech.chat.model.User;
+import kr.ac.koreatech.chat.view.sign_in.SignInActivity;
 
 public class BaseActivity extends AppCompatActivity {
 
@@ -29,4 +37,13 @@ public class BaseActivity extends AppCompatActivity {
         hideProgressDialog();
     }
 
+    protected void sign_out() {
+        User.currentUser.clearData();
+        User.currentUser = null;
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.signOut();
+
+        startActivity(new Intent(this, SignInActivity.class));
+    }
 }

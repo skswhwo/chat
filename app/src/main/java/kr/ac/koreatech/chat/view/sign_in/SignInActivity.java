@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,38 +22,38 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.onesignal.OneSignal;
 
+import org.androidannotations.annotations.Click;
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ViewById;
+
 import kr.ac.koreatech.chat.R;
 import kr.ac.koreatech.chat.model.User;
 import kr.ac.koreatech.chat.view.BaseActivity;
-import kr.ac.koreatech.chat.view.chat_room.ChatRoomActivity;
+import kr.ac.koreatech.chat.view.chat_room.ChatRoomActivity_;
 
-public class SignInActivity extends BaseActivity implements View.OnClickListener
+@EActivity(R.layout.activity_sign_in)
+public class SignInActivity extends BaseActivity
 {
     private FirebaseAuth mAuth;
 
-    private EditText mEmailField;
-    private EditText mPasswordField;
-    private TextView mStatusTextView;
+    @ViewById
+    EditText fieldEmail;
+
+    @ViewById
+    EditText fieldPassword;
+
+    @ViewById
+    TextView statusTextView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_in);
 
         // OneSignal Initialization
         OneSignal.startInit(this)
                 .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
                 .unsubscribeWhenNotificationsAreDisabled(true)
                 .init();
-
-        // Views
-        mEmailField = findViewById(R.id.field_email);
-        mPasswordField = findViewById(R.id.field_password);
-        mStatusTextView = findViewById(R.id.status);
-
-        // Buttons
-        findViewById(R.id.email_sign_in_button).setOnClickListener(this);
-        findViewById(R.id.email_create_account_button).setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
     }
@@ -75,14 +74,14 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         super.onDestroy();
     }
 
-    @Override
-    public void onClick(View v) {
-        int i = v.getId();
-        if (i == R.id.email_create_account_button) {
-            createAccount(mEmailField.getText().toString(), mPasswordField.getText().toString());
-        } else if (i == R.id.email_sign_in_button) {
-            signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
-        }
+    @Click
+    public void emailSignInButton() {
+        signIn(fieldEmail.getText().toString(), fieldPassword.getText().toString());
+    }
+
+    @Click
+    public void emailCreateAccountButton() {
+        createAccount(fieldEmail.getText().toString(), fieldPassword.getText().toString());
     }
 
     private void createAccount(String email, String password) {
@@ -101,7 +100,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                             Toast.makeText(SignInActivity.this, "Failed to create account",
                                     Toast.LENGTH_SHORT).show();
                             setCurrentUser(null);
-                            mStatusTextView.setText("Failed to create account");
+                            statusTextView.setText("Failed to create account");
                         }
                         hideProgressDialog();
                     }
@@ -122,7 +121,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                             Toast.makeText(SignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                             setCurrentUser(null);
-                            mStatusTextView.setText("Authentication failed");
+                            statusTextView.setText("Authentication failed");
                         }
 
                         hideProgressDialog();
@@ -171,7 +170,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                 goToMainActivity();
             }
         } else {
-            mStatusTextView.setText("");
+            statusTextView.setText("");
         }
     }
 
@@ -216,6 +215,6 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
             }
         });
 
-        startActivity(new Intent(this, ChatRoomActivity.class));
+        startActivity(new Intent(this, ChatRoomActivity_.class));
     }
 }

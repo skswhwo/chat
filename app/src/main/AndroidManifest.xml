@@ -12,7 +12,7 @@
         android:theme="@style/AppTheme"
         >
 
-        <activity android:name=".view.sign_in.SignInActivity">
+        <activity android:name=".view.sign_in.SignInActivity_">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,8 +20,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.chat_room.ChatRoomActivity" />
-        <activity android:name=".view.user_list.UserListActivity" />
+        <activity android:name=".view.chat_room.ChatRoomActivity_" />
+        <activity android:name=".view.user_list.UserListActivity_" />
     </application>
 
 </manifest>

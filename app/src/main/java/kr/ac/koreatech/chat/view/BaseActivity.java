@@ -6,10 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.onesignal.OneSignal;
 
 import kr.ac.koreatech.chat.model.User;
-import kr.ac.koreatech.chat.view.sign_in.SignInActivity;
+import kr.ac.koreatech.chat.view.sign_in.SignInActivity_;
 
 public class BaseActivity extends AppCompatActivity {
 
@@ -44,6 +43,6 @@ public class BaseActivity extends AppCompatActivity {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.signOut();
 
-        startActivity(new Intent(this, SignInActivity.class));
+        startActivity(new Intent(this, SignInActivity_.class));
     }
 }

@@ -142,7 +142,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                     User user = dataSnapshot.getValue(User.class);
 
                     if (user == null) {
-                        user = new User(uid, null, email, true);
+                        user = new User(uid, null, email, null, true);
                     }
 
                     user.setUid(uid);

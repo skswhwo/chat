@@ -9,6 +9,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(of = {"id"})
 public class Message {
     public static String ref = "messages";
 
@@ -18,41 +25,12 @@ public class Message {
     private String imageUrl;
     private long time;
 
-    public Message() {
-    }
-
     public Message(String name, String text, String imageUrl) {
         this.name = name;
         this.text = text;
         this.imageUrl = imageUrl;
         Date date = new Date();
         this.time = date.getTime();
-    }
-
-    public String getId() {
-        return id;
-    }
-    public String getText() {
-        return text;
-    }
-    public String getName() {
-        return name;
-    }
-    public String getImageUrl() { return imageUrl; }
-    public long getTime() { return time; }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Exclude
-    public String getTimeString() {
-        if (time > 0) {
-            Date date = new Date(time);
-            SimpleDateFormat formatter = new SimpleDateFormat("MM월 dd일 HH시 mm분");
-            return formatter.format(date);
-        }
-        return null;
     }
 
     @Exclude
@@ -65,26 +43,22 @@ public class Message {
         return res;
     }
 
+    @Exclude
+    private String getTimeString() {
+        if (time > 0) {
+            Date date = new Date(time);
+            SimpleDateFormat formatter = new SimpleDateFormat("MM월 dd일 HH시 mm분");
+            return formatter.format(date);
+        }
+        return null;
+    }
+
     public void update() {
-        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(Message.ref);
-        myRef.push().setValue(this);
+        update(null);
     }
 
     public void update(DatabaseReference.CompletionListener listener) {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(Message.ref);
         myRef.push().setValue(this, listener);
-    }
-
-    @Override
-    public int hashCode(){
-        String s = "message_" + getId();
-        return s.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-
-        Message message = (Message) o;
-        return this.getId().equals(message.getId());
     }
 }

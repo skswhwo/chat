@@ -83,7 +83,6 @@ public class Message {
 
     @Override
     public boolean equals(Object o) {
-
         Message message = (Message) o;
         return this.getId().equals(message.getId());
     }

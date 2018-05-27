@@ -157,6 +157,7 @@ public class ChatRoomActivity  extends BaseActivity {
                 if (data != null) {
                     final Uri uri = data.getData();
 
+                    //Loading 이미지를 삽입 후, message의 key를 가져옴
                     Message message = new Message(User.currentUser.getName(), null, LOADING_IMAGE_URL);
                     message.update(new DatabaseReference.CompletionListener() {
                         @Override
@@ -171,6 +172,8 @@ public class ChatRoomActivity  extends BaseActivity {
                                                 .child(key)
                                                 .child(uri.getLastPathSegment());
 
+                                //이미지 파일을 storage에 저장
+                                //저장 경로: user_id/message_key/original_file_name
                                 putImageInStorage(storageReference, uri, key);
                             } else {
                                 //@TODO error handling ("Unable to write message to database.")
@@ -183,6 +186,11 @@ public class ChatRoomActivity  extends BaseActivity {
     }
 
     private void putImageInStorage(StorageReference storageReference, Uri uri, final String key) {
+         /*
+              1. Firebase Storage에 저장 후, CompleteListener 연결
+
+              2. 기존 메세지의 LOADING_IMAGE_URL을 실제 업로드된 이미지의 url로 교체
+         */
         storageReference.putFile(uri).addOnCompleteListener(ChatRoomActivity.this,
                 new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -200,32 +208,26 @@ public class ChatRoomActivity  extends BaseActivity {
     }
 
     private void sendPush(final String text) {
-        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(User.ref);
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                ArrayList playerIds= new ArrayList<String>();
-                for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
-                    User user = childDataSnapshot.getValue(User.class);
-                    if (user.getPlayerId() != null) {
-                        playerIds.add("'" + user.getPlayerId() + "'");
-                    }
-                }
+        /*
+              @TODO 사용자 리스트 조회 후, Push 전송
+              1. 사용자 목록에 해당하는 database reference 접근
 
-                String playerIdsStr = TextUtils.join(",", playerIds);
+              2. Database에서 user list 가져오기 (한번만 접근) (addListenerForSingleValueEvent)
+              https://firebase.google.com/docs/database/android/read-and-write?authuser=0
 
-                try {
-                    JSONObject payload = new JSONObject("{" +
-                            "'contents': {'en':'" + text + "'}, " +
-                            "'include_player_ids': [" + playerIdsStr + "]" +
-                            "}");
-                    OneSignal.postNotification(payload, null);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) { }
-        });
+              3. OneSignal로 Push 전송 (text 전송)
+              https://documentation.onesignal.com/docs/android-native-sdk#section--postnotification-
+         */
     }
+
+    private String getPlayerIds(ArrayList<User> users) {
+        ArrayList<String> playerIds = new ArrayList<String>();
+        for (User user : users) {
+            if (user.getPlayerId() != null) {
+                playerIds.add("'" + user.getPlayerId() + "'");
+            }
+        }
+        return TextUtils.join(",", playerIds);  //'player1','player2','player3',...
+    }
+
 }

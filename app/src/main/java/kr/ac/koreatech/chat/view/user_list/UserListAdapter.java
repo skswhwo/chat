@@ -77,14 +77,15 @@ public class UserListAdapter extends BaseAdapter {
             valueEventListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    /*
 
-                    data = new ArrayList<User>();
-                    for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
-                        User user = childDataSnapshot.getValue(User.class);
-                        user.setUid(childDataSnapshot.getKey());
-                        data.add(user);
-                    }
-                    notifyDataSetChanged();
+                    @TODO ListView에 적용할 User data 정제
+
+                    1. dataSnapshot을 User model의 list로 변환
+
+                    2. ListView에 데이터의 변경을 알림
+
+                    */
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) { }

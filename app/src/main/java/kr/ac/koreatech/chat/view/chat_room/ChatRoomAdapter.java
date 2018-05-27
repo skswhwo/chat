@@ -98,7 +98,7 @@ public class ChatRoomAdapter extends BaseAdapter {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                     /*
-                        @TODO message 모델 추가 및 UI 반영
+                        message 모델 추가 및 UI 반영
                      */
                     Message message = dataSnapshot.getValue(Message.class);
                     message.setId(dataSnapshot.getKey());
@@ -111,12 +111,12 @@ public class ChatRoomAdapter extends BaseAdapter {
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
                     /*
-                        @TODO 이전메세지 교체
+                        이전메세지를 교체
                      */
                     Message newMessage = dataSnapshot.getValue(Message.class);
                     newMessage.setId(dataSnapshot.getKey());
                     for (Message message : data) {
-                        if (message.getId().equals(newMessage.getId())) {
+                        if (message.equals(newMessage)) {
                             data.set(data.indexOf(message), newMessage);
                             notifyDataSetChanged();
                             break;

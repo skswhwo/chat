@@ -1,11 +1,9 @@
 package kr.ac.koreatech.chat.view.user_list;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -14,18 +12,17 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-import kr.ac.koreatech.chat.R;
 import kr.ac.koreatech.chat.model.User;
 
 public class UserListAdapter extends BaseAdapter {
-    private LayoutInflater inflater;
+    private Context context;
     private ArrayList<User> data;
 
     private DatabaseReference messageRef;
     private ValueEventListener valueEventListener;
 
     public UserListAdapter(Context context, DatabaseReference ref) {
-        this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.context = context;
         this.messageRef = ref;
         this.data = new ArrayList<User>();
     }
@@ -36,7 +33,7 @@ public class UserListAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
+    public User getItem(int position) {
         return data.get(position);
     }
 
@@ -47,21 +44,15 @@ public class UserListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if(convertView == null) {
-            convertView = inflater.inflate(R.layout.item_user, parent,false);
+        UserListItem view = (UserListItem) convertView;
+        if(view == null) {
+            view = UserListItem_.build(context);
         }
 
-        User user = data.get(position);
+        User user = getItem(position);
+        view.bind(user);
 
-        TextView nameTextView = (TextView) convertView.findViewById(R.id.titleTextView);
-        TextView emailTextView = (TextView) convertView.findViewById(R.id.subTitleTextView);
-        TextView optionTextView = (TextView) convertView.findViewById(R.id.optionTextView);
-
-        nameTextView.setText(user.getName());
-        emailTextView.setText(user.getEmail());
-        optionTextView.setText(user.getIsOnline()? "Online":"");
-
-        return convertView;
+        return view;
     }
 
     public void startListening() {

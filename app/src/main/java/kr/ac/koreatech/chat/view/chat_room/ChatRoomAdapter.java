@@ -1,15 +1,11 @@
 package kr.ac.koreatech.chat.view.chat_room;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -17,7 +13,6 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 
-import kr.ac.koreatech.chat.R;
 import kr.ac.koreatech.chat.model.Message;
 
 public class ChatRoomAdapter extends BaseAdapter {
@@ -56,31 +51,15 @@ public class ChatRoomAdapter extends BaseAdapter {
     //Data를 ListView의 아이템 뷰로 만들어주는 메소드
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if(convertView == null) {
-            convertView = inflater.inflate(R.layout.item_message, parent,false);
+        ChatRoomItem view = (ChatRoomItem) convertView;
+        if(view == null) {
+            view = ChatRoomItem_.build(context);
         }
 
         Message message = getItem(position);
+        view.bind(message);
 
-        TextView titleTextView = convertView.findViewById(R.id.titleTextView);
-        TextView subTitleTextView = convertView.findViewById(R.id.subTitleTextView);
-        ImageView messageImageView = convertView.findViewById(R.id.messageImageView);
-
-        titleTextView.setText(message.getText());
-        subTitleTextView.setText(message.getNameAndTime());
-
-        if (message.getImageUrl() != null) {
-            Glide.with(parent.getContext())
-                    .load(message.getImageUrl())
-                    .into(messageImageView);
-            messageImageView.setVisibility(ImageView.VISIBLE);
-            titleTextView.setVisibility(TextView.GONE);
-        } else {
-            messageImageView.setVisibility(ImageView.GONE);
-            titleTextView.setVisibility(TextView.VISIBLE);
-        }
-
-        return convertView;
+        return view;
     }
 
     //database listener 연결 여부 결정 (Activity에서 view의 상태에 따라 결정함)

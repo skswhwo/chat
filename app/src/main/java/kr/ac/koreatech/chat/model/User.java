@@ -1,15 +1,16 @@
 package kr.ac.koreatech.chat.model;
 
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.Serializable;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor(suppressConstructorProperties = true)
 public class User implements Serializable {
     public static String ref = "users";
@@ -20,11 +21,7 @@ public class User implements Serializable {
     private String name;
     private String email;
     private String playerId;
-    private Boolean isOnline;
-
-    public User() {
-        this.isOnline = false;
-    }
+    private Boolean isOnline = false;
 
     public void update() {
         if (uid != null && name != null) {

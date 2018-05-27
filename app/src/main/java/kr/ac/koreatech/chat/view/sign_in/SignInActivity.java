@@ -145,8 +145,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                         user = new User(uid, null, email, true);
                     }
 
-                    user.uid = uid;
-                    user.isOnline = true;
+                    user.setUid(uid);
                     User.currentUser = user;
                     updateUI();
                 }
@@ -166,7 +165,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         hideProgressDialog();
 
         if (User.currentUser != null) {
-            if (User.currentUser.name == null) {
+            if (User.currentUser.getName() == null) {
                 alertDialog();
             } else {
                 goToMainActivity();
@@ -205,12 +204,14 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
 
     private void goToMainActivity() {
         User.currentUser.setIsOnline(true);
+        User.currentUser.update();
 
         OneSignal.idsAvailable(new OneSignal.IdsAvailableHandler() {
             @Override
             public void idsAvailable(String userId, String registrationId) {
                 if (registrationId != null) {
                     User.currentUser.setPlayerId(userId);
+                    User.currentUser.update();
                 }
             }
         });

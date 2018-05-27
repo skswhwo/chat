@@ -36,8 +36,8 @@ public class UserListAdapter extends BaseAdapter {
     }
 
     @Override
-    public String getItem(int position) {
-        return data.get(position).name;
+    public Object getItem(int position) {
+        return data.get(position);
     }
 
     @Override
@@ -57,9 +57,9 @@ public class UserListAdapter extends BaseAdapter {
         TextView emailTextView = (TextView) convertView.findViewById(R.id.subTitleTextView);
         TextView optionTextView = (TextView) convertView.findViewById(R.id.optionTextView);
 
-        nameTextView.setText(user.name);
-        emailTextView.setText(user.email);
-        optionTextView.setText(user.isOnline? "Online":"");
+        nameTextView.setText(user.getName());
+        emailTextView.setText(user.getEmail());
+        optionTextView.setText(user.getIsOnline()? "Online":"");
 
         return convertView;
     }
@@ -81,7 +81,7 @@ public class UserListAdapter extends BaseAdapter {
                     data = new ArrayList<User>();
                     for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                         User user = childDataSnapshot.getValue(User.class);
-                        user.uid = childDataSnapshot.getKey();
+                        user.setUid(childDataSnapshot.getKey());
                         data.add(user);
                     }
                     notifyDataSetChanged();

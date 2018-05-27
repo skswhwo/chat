@@ -22,6 +22,7 @@ public class ApplicationLifecycleHandler implements Application.ActivityLifecycl
             // app went to foreground
             if (User.currentUser != null) {
                 User.currentUser.setIsOnline(true);
+                User.currentUser.update();
             }
         }
         numStarted++;
@@ -44,6 +45,7 @@ public class ApplicationLifecycleHandler implements Application.ActivityLifecycl
             // app went to background
             if (User.currentUser != null) {
                 User.currentUser.setIsOnline(false);
+                User.currentUser.update();
             }
         }
     }

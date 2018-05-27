@@ -10,13 +10,11 @@ public class User implements Serializable {
     public static String ref = "users";
     public static User currentUser;
 
-    @Exclude
-    public String uid;
-
-    public String name;
-    public String email;
-    public String playerId;
-    public Boolean isOnline;
+    private String uid;
+    private String name;
+    private String email;
+    private String playerId;
+    private Boolean isOnline;
 
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
@@ -30,24 +28,40 @@ public class User implements Serializable {
         this.isOnline = isOnline;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    public Boolean getIsOnline() {
+        return isOnline;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
     public void setEmail(String email) {
         this.email = email;
-        update();
     }
 
     public void setName(String name) {
         this.name = name;
-        update();
     }
 
     public void setPlayerId(String playerId) {
         this.playerId = playerId;
-        update();
     }
 
     public void setIsOnline(Boolean isOnline) {
         this.isOnline = isOnline;
-        update();
     }
 
     public void update() {

@@ -1,5 +1,7 @@
 package kr.ac.koreatech.chat.model;
 
+import android.util.Log;
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
@@ -10,19 +12,19 @@ import java.util.Date;
 public class Message {
     public static String ref = "messages";
 
-    @Exclude
-    public String id;
-
-    public String text;
-    public String name;
-    public long time;
+    private String id;
+    private String text;
+    private String name;
+    private String imageUrl;
+    private long time;
 
     public Message() {
     }
 
-    public Message(String name, String text) {
+    public Message(String name, String text, String imageUrl) {
         this.name = name;
         this.text = text;
+        this.imageUrl = imageUrl;
         Date date = new Date();
         this.time = date.getTime();
     }
@@ -30,27 +32,33 @@ public class Message {
     public String getId() {
         return id;
     }
-
     public String getText() {
         return text;
     }
-
     public String getName() {
         return name;
     }
+    public String getImageUrl() { return imageUrl; }
+    public long getTime() { return time; }
 
-    public String getTime() {
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Exclude
+    public String getTimeString() {
         if (time > 0) {
             Date date = new Date(time);
-            SimpleDateFormat formatter = new SimpleDateFormat("MM월 dd일 hh시 mm분");
+            SimpleDateFormat formatter = new SimpleDateFormat("MM월 dd일 HH시 mm분");
             return formatter.format(date);
         }
         return null;
     }
 
+    @Exclude
     public String getNameAndTime() {
         String res = getName();
-        String time = getTime();
+        String time = getTimeString();
         if (time != null) {
             res = res.concat(" (" + time + ")");
         }
@@ -60,5 +68,23 @@ public class Message {
     public void update() {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(Message.ref);
         myRef.push().setValue(this);
+    }
+
+    public void update(DatabaseReference.CompletionListener listener) {
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(Message.ref);
+        myRef.push().setValue(this, listener);
+    }
+
+    @Override
+    public int hashCode(){
+        String s = "message_" + getId();
+        return s.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        Message message = (Message) o;
+        return this.getId().equals(message.getId());
     }
 }

@@ -29,7 +29,7 @@ import org.androidannotations.annotations.ViewById;
 import kr.ac.koreatech.chat.R;
 import kr.ac.koreatech.chat.model.User;
 import kr.ac.koreatech.chat.view.BaseActivity;
-import kr.ac.koreatech.chat.view.chat_room.ChatRoomActivity_;
+import kr.ac.koreatech.chat.view.chat_room.ChatRoomActivity;
 
 @EActivity(R.layout.activity_sign_in)
 public class SignInActivity extends BaseActivity
@@ -215,6 +215,6 @@ public class SignInActivity extends BaseActivity
             }
         });
 
-        startActivity(new Intent(this, ChatRoomActivity_.class));
+        startActivity(new Intent(this, ChatRoomActivity.class));
     }
 }

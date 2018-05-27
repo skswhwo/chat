@@ -2,14 +2,19 @@ package kr.ac.koreatech.chat.view.chat_room;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -42,49 +47,86 @@ import kr.ac.koreatech.chat.model.Message;
 import kr.ac.koreatech.chat.model.User;
 import kr.ac.koreatech.chat.view.user_list.UserListActivity_;
 
-@EActivity(R.layout.activity_chat_room)
 public class ChatRoomActivity  extends BaseActivity {
     private static final int REQUEST_IMAGE = 1;
     private static final String LOADING_IMAGE_URL = "https://www.google.com/images/spin-32.gif";
 
-    @ViewById
     ListView messageListView;
-
-    @ViewById
     EditText messageEditText;
-
-    @ViewById
     Button sendButton;
+    ImageView addMessageImageView;
 
     private ChatRoomAdapter adapter;
     private DatabaseReference mFirebaseDatabaseReference;
 
-    @AfterViews
-    void initMessageList() {
+    /*
+    TODO: onCreate 함수 제거 (Annotation으로 대체)
+    http://androidannotations.org/
+    
+    1. Layout
+
+    2. View
+
+    3. Click
+
+    4. TextWatcher
+
+    5. Initializer
+
+    6. AndroidManifest 파일 수정
+
+    7. startActivity가 사용되는 곳에서 class이름 + "_" 로 호출
+
+     */
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_chat_room);
+
+        messageListView = (ListView) findViewById(R.id.messageListView);
+        messageEditText = (EditText) findViewById(R.id.messageEditText);
+        sendButton = (Button) findViewById(R.id.sendButton);
+        addMessageImageView = (ImageView) findViewById(R.id.addMessageImageView);
+
+        addMessageImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("image/*");
+                startActivityForResult(intent, REQUEST_IMAGE);
+            }
+        });
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Message message = new Message(User.currentUser.getName(), messageEditText.getText().toString(),null);
+                message.update();
+                sendPush(message.getText());
+                messageEditText.setText("");
+            }
+        });
+
+        messageEditText.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                sendButton.setEnabled((messageEditText.getText().toString().trim().length() > 0));
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
         adapter = new ChatRoomAdapter(this, mFirebaseDatabaseReference.child(Message.ref));
         messageListView.setAdapter(adapter);
-    }
-
-    @TextChange(R.id.messageEditText)
-    void onTextChangesOnMessageEditText() {
-        sendButton.setEnabled((messageEditText.getText().toString().trim().length() > 0));
-    }
-
-    @Click
-    public void sendButton() {
-        Message message = new Message(User.currentUser.getName(), messageEditText.getText().toString(),null);
-        message.update();
-        sendPush(message.getText());
-        messageEditText.setText("");
-    }
-
-    @Click
-    public void addMessageImageView() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("image/*");
-        startActivityForResult(intent, REQUEST_IMAGE);
     }
 
     @Override

@@ -20,7 +20,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.chat_room.ChatRoomActivity_" />
+        <activity android:name=".view.chat_room.ChatRoomActivity" />
         <activity android:name=".view.user_list.UserListActivity_" />
     </application>
 

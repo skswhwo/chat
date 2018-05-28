@@ -208,7 +208,7 @@ public class ChatRoomActivity  extends BaseActivity {
     }
 
     private void sendPush(final String text) {
-        /*
+          /*
               @TODO 사용자 리스트 조회 후, Push 전송
               1. 사용자 목록에 해당하는 database reference 접근
 
@@ -218,6 +218,31 @@ public class ChatRoomActivity  extends BaseActivity {
               3. OneSignal로 Push 전송 (text 전송)
               https://documentation.onesignal.com/docs/android-native-sdk#section--postnotification-
          */
+          
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(User.ref);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList users = new ArrayList<String>();
+                for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
+                    User user = childDataSnapshot.getValue(User.class);
+                    users.add(user);
+                }
+                String playerIds = getPlayerIds(users);
+
+                try {
+                    JSONObject payload = new JSONObject("{" +
+                            "'contents': {'en':'" + text + "'}, " +
+                            "'include_player_ids': [" + playerIds + "]" +
+                            "}");
+                    OneSignal.postNotification(payload, null);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
     }
 
     private String getPlayerIds(ArrayList<User> users) {

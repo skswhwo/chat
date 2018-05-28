@@ -78,7 +78,6 @@ public class UserListAdapter extends BaseAdapter {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     /*
-
                     @TODO ListView에 적용할 User data 정제
 
                     1. dataSnapshot을 User model의 list로 변환
@@ -86,6 +85,13 @@ public class UserListAdapter extends BaseAdapter {
                     2. ListView에 데이터의 변경을 알림
 
                     */
+                    data = new ArrayList<User>();
+                    for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
+                        User user = childDataSnapshot.getValue(User.class);
+                        user.setUid(childDataSnapshot.getKey());
+                        data.add(user);
+                    }
+                    notifyDataSetChanged();
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) { }

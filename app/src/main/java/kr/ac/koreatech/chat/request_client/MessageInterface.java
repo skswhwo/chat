@@ -25,12 +25,10 @@ public interface MessageInterface {
         Message 조회
 
         Request:
-        (POST) https://koreatech-chat-app.firebaseio.com/messages/:id
+        (GET) https://koreatech-chat-app.firebaseio.com/messages/:id
 
         Response:
         Message model
 
     */
-    @GET("messages/{id}")
-    Call<Message> getMessage(@Path("id") String id);
 }

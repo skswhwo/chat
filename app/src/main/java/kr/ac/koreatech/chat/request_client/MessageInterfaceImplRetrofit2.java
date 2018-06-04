@@ -16,12 +16,13 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MessageInterfaceImplRetrofit2 {
-    private final MessageInterface service;
 
     // URL Const Vals
     String TEST_SCHEME = "https";
     String TEST_AUTHORITY = "koreatech-chat-app.firebaseio.com";
     String TEST_BASE_URI = new Uri.Builder().scheme(TEST_SCHEME).authority(TEST_AUTHORITY).build().toString();
+
+    private final MessageInterface service = null;
 
     public MessageInterfaceImplRetrofit2() {
         /*
@@ -32,12 +33,6 @@ public class MessageInterfaceImplRetrofit2 {
         4. (GET) messages/:id
         5. (POST) messages/:id
          */
-        final Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(TEST_BASE_URI)
-                .client(new OkHttpClient())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        service = retrofit.create(MessageInterface.class);
     }
 
     public void getMessages(final CallbackInterface callback) {
@@ -58,18 +53,6 @@ public class MessageInterfaceImplRetrofit2 {
                  :
                 ]
          */
-
-        service.getMessages().enqueue(new Callback<List<Message>>() {
-            @Override
-            public void onResponse(Call<List<Message>> call, Response<List<Message>> response) {
-                callback.success(response.body());
-            }
-
-            @Override
-            public void onFailure(Call<List<Message>> call, Throwable error) {
-                callback.error(error);
-            }
-        });
     }
 
     public void getMessage(String id, final CallbackInterface callback) {
@@ -88,18 +71,6 @@ public class MessageInterfaceImplRetrofit2 {
                   text: chat-message
                 }
          */
-
-        service.getMessage(id).enqueue(new Callback<Message>() {
-            @Override
-            public void onResponse(Call<Message> call, Response<Message> response) {
-                callback.success(response.body());
-            }
-
-            @Override
-            public void onFailure(Call<Message> call, Throwable error) {
-                callback.error(error);
-            }
-        });
     }
 
     public void postMessage(String name, String text, final CallbackInterface callback) {
@@ -118,17 +89,5 @@ public class MessageInterfaceImplRetrofit2 {
                   text: chat-message
                 }
          */
-
-        service.postMessage(name, text).enqueue(new Callback<Message>() {
-            @Override
-            public void onResponse(Call<Message> call, Response<Message> response) {
-                callback.success(response.body());
-            }
-
-            @Override
-            public void onFailure(Call<Message> call, Throwable error) {
-                callback.error(error);
-            }
-        });
     }
 }

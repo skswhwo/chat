@@ -35,7 +35,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import kr.ac.koreatech.chat.request_client.UserInterface;
+import kr.ac.koreatech.chat.request_client.UserInterfaceImplHttpURLConnection;
+import kr.ac.koreatech.chat.request_client.UserInterfaceImplOkHttp3;
+import kr.ac.koreatech.chat.request_client.UserInterfaceImplRetrofit2;
 import kr.ac.koreatech.chat.view.BaseActivity;
 import kr.ac.koreatech.chat.R;
 import kr.ac.koreatech.chat.model.Message;
@@ -177,33 +182,76 @@ public class ChatRoomActivity  extends BaseActivity {
                 });
     }
 
-    private void sendPush(final String text) {
+    private void sendPush(String text) {
+//        getUserListUsingFirebaseApi(text);
+//        getUserListUsingHttpUrlConnection(text);
+//        getUserListUsingOkHttp3(text);
+//        getUserListUsingRetrofit2(text);
+    }
+
+    private void getUserListUsingFirebaseApi(final String text) {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(User.ref);
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                ArrayList playerIds= new ArrayList<String>();
+                List<User> users = new ArrayList<>();
                 for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                     User user = childDataSnapshot.getValue(User.class);
-                    if (user.getPlayerId() != null) {
-                        playerIds.add("'" + user.getPlayerId() + "'");
-                    }
+                    users.add(user);
                 }
-
-                String playerIdsStr = TextUtils.join(",", playerIds);
-
-                try {
-                    JSONObject payload = new JSONObject("{" +
-                            "'contents': {'en':'" + text + "'}, " +
-                            "'include_player_ids': [" + playerIdsStr + "]" +
-                            "}");
-                    OneSignal.postNotification(payload, null);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                sendPush(text, users);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) { }
         });
+    }
+
+    private void getUserListUsingHttpUrlConnection(String text) {
+        UserInterfaceImplHttpURLConnection connection = new UserInterfaceImplHttpURLConnection();
+        connection.getUsers(callback(text));
+    }
+
+    private void getUserListUsingOkHttp3(String text) {
+        UserInterfaceImplOkHttp3 connection = new UserInterfaceImplOkHttp3();
+        connection.getUsers(callback(text));
+    }
+
+    private void getUserListUsingRetrofit2(String text) {
+        UserInterfaceImplRetrofit2 connection = new UserInterfaceImplRetrofit2();
+        connection.getUsers(callback(text));
+    }
+
+    private UserInterface.RequestCallback callback(final String text) {
+        return new UserInterface.RequestCallback() {
+            @Override
+            public void success(List<User> users) {
+                sendPush(text, users);
+            }
+
+            @Override
+            public void error(Throwable throwable) { }
+        };
+    }
+
+
+    private void sendPush(String text, List<User> users) {
+        ArrayList playerIds= new ArrayList<String>();
+        for (User user : users) {
+            if (user.getPlayerId() != null) {
+                playerIds.add("'" + user.getPlayerId() + "'");
+            }
+        }
+
+        String playerIdsStr = TextUtils.join(",", playerIds);
+
+        try {
+            JSONObject payload = new JSONObject("{" +
+                    "'contents': {'en':'" + text + "'}, " +
+                    "'include_player_ids': [" + playerIdsStr + "]" +
+                    "}");
+            OneSignal.postNotification(payload, null);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }
